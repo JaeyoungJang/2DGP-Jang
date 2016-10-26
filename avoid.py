@@ -12,38 +12,10 @@ def handle_events():
     for event in events:
         if event.type == SDL_QUIT:
             running = False
-        elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_RIGHT:
-                miko.righton = True
-            elif event.key == SDLK_LEFT:
-                miko.lefton = True
-            elif event.key == SDLK_UP:
-                miko.upon = True
-            elif event.key == SDLK_DOWN:
-                miko.downon = True
-            elif event.key == SDLK_ESCAPE:
-                running = False
-            elif event.key == SDLK_a:
-                miko.state = True
-                miko.weap[miko.count].state = True
-                miko.weap[miko.count].xx = miko.x + 30
-                miko.weap[miko.count].yy = miko.y
-                miko.count += 1
-                if(miko.count >= 50):
-                    miko.count = 0
-
-        if event.type == SDL_KEYUP:
-            if event.key == SDLK_RIGHT:
-                miko.righton = False
-            elif event.key == SDLK_LEFT:
-                miko.lefton = False
-            elif event.key == SDLK_UP:
-                miko.upon = False
-            elif event.key == SDLK_DOWN:
-                miko.downon = False
-            elif event.key == SDLK_a:
-                miko.state = False
-                miko.weap[miko.count].state = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            running = False
+        else:
+            miko.handle_event(event)
 
 class Back1:
     def __init__(self):
@@ -94,6 +66,37 @@ class Miko:
         self.ani = load_image('mikoattack.png')
         self.weapone1 = load_image('weapone1.png')
 
+    def handle_event(self, event):
+        if event.type == SDL_KEYDOWN:
+            if event.key == SDLK_RIGHT:
+                miko.righton = True
+            elif event.key == SDLK_LEFT:
+                miko.lefton = True
+            elif event.key == SDLK_UP:
+                miko.upon = True
+            elif event.key == SDLK_DOWN:
+                miko.downon = True
+            elif event.key == SDLK_a:
+                miko.state = True
+                miko.weap[miko.count].state = True
+                miko.weap[miko.count].xx = miko.x + 30
+                miko.weap[miko.count].yy = miko.y
+                miko.count += 1
+                if (miko.count >= 50):
+                    miko.count = 0
+        if event.type == SDL_KEYUP:
+            if event.key == SDLK_RIGHT:
+                miko.righton = False
+            elif event.key == SDLK_LEFT:
+                miko.lefton = False
+            elif event.key == SDLK_UP:
+                miko.upon = False
+            elif event.key == SDLK_DOWN:
+                miko.downon = False
+            elif event.key == SDLK_a:
+                miko.state = False
+                miko.weap[miko.count].state = False
+
     def update(self):
         self.frame += 5
         self.framea += 4
@@ -107,7 +110,7 @@ class Miko:
             self.y -= 10
         for i in range(50):
             if self.weap[i].state == True:
-                self.weap[i].xx += 10
+                self.weap[i].xx += 20
 
     def draw(self):
         if self.state == True:
