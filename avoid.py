@@ -125,7 +125,23 @@ class Enemy1:
     def __init__(self):
         self.image = load_image('enemy1.png')
         self.frame = 0
-        self.x, self.y = random.randint(1000,2000), random.randint(80,570)
+        self.x, self.y = random.randint(1000,2000), random.randint(300,570)
+
+    def update(self):
+        self.frame += 5
+        self.x -= 5
+        if self.x <=0:
+            self.x = random.randint(900,1500)
+            self.y = random.randint(80,570)
+
+    def draw(self):
+        self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
+
+class Enemy2:
+    def __init__(self):
+        self.image = load_image('enemy1.png')
+        self.frame = 0
+        self.x, self.y = random.randint(1000,2000), random.randint(60,300)
 
     def update(self):
         self.frame += 5
@@ -144,7 +160,9 @@ back1 = Back1()
 back2 = Back2()
 miko = Miko()
 enemy1 = Enemy1()
+enemy2 = Enemy2()
 team = [Enemy1() for i in range(7)]
+team2 = [Enemy2() for i in range(10)]
 
 running = True
 # game main loop code
@@ -162,8 +180,12 @@ while running:
     miko.update()
     for enemy1 in team:
         enemy1.draw()
+    for enemy2 in team2:
+        enemy2.draw()
     for enemy1 in team:
         enemy1.update()
+    for enemy2 in team2:
+        enemy2.update()
     update_canvas()
 
     delay(0.05)
