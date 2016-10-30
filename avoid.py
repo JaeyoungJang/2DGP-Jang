@@ -20,11 +20,11 @@ def handle_events():
 class Back1:
     def __init__(self):
         self.image = load_image('back.png')
-        self.back1_x = 450
+        self.back1_x = 450      #first 배경 x좌표위치
 
     def update(self):
         self.back1_x -= 10
-        if self.back1_x == -450:
+        if self.back1_x <= -450:
             self.back1_x = 1350
 
     def draw(self):
@@ -33,7 +33,7 @@ class Back1:
 class Back2:
     def __init__(self):
         self.image = load_image('back2.png')
-        self.back2_x = 1350
+        self.back2_x = 1350     #Second 배경 x좌표위치
 
     def update(self):
         self.back2_x -= 10
@@ -161,10 +161,11 @@ back2 = Back2()
 miko = Miko()
 enemy1 = Enemy1()
 enemy2 = Enemy2()
-team = [Enemy1() for i in range(7)]
-team2 = [Enemy2() for i in range(10)]
+team = [Enemy1() for i in range(8)]
+team2 = [Enemy2() for i in range(8)]
 
 running = True
+
 # game main loop code
 while running:
 
