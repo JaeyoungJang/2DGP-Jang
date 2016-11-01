@@ -161,8 +161,8 @@ back2 = Back2()
 miko = Miko()
 enemy1 = Enemy1()
 enemy2 = Enemy2()
-team = [Enemy1() for i in range(8)]
-team2 = [Enemy2() for i in range(8)]
+team = [Enemy1() for i in range(10)]
+team2 = [Enemy2() for i in range(10)]
 
 running = True
 
