@@ -1,21 +1,10 @@
 from pico2d import *
 import random
 
-# 화면 가로,세로
-pad_w = 900
-pad_h = 600
+import game_framework
+import title_state
 
-# Game object class here
-def handle_events():
-    global running,x,y,miko
-    events = get_events()
-    for event in events:
-        if event.type == SDL_QUIT:
-            running = False
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            running = False
-        else:
-            miko.handle_event(event)
+name = "MainState"
 
 class Back1:
     def __init__(self):
@@ -125,7 +114,7 @@ class Enemy1:
     def __init__(self):
         self.image = load_image('enemy1.png')
         self.frame = 0
-        self.x, self.y = random.randint(1000,2000), random.randint(300,570)
+        self.x, self.y = random.randint(1000,2000), random.randint(60,570)
 
     def update(self):
         self.frame += 5
@@ -137,59 +126,46 @@ class Enemy1:
     def draw(self):
         self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
 
-class Enemy2:
-    def __init__(self):
-        self.image = load_image('enemy1.png')
-        self.frame = 0
-        self.x, self.y = random.randint(1000,2000), random.randint(60,300)
+def handle_events():
+    global running,x,y,miko
+    events = get_events()
+    for event in events:
+        if event.type == SDL_QUIT:
+            game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            game_framework.quit()
+        else:
+            miko.handle_event(event)
 
-    def update(self):
-        self.frame += 5
-        self.x -= 5
-        if self.x <=0:
-            self.x = random.randint(900,1500)
-            self.y = random.randint(80,570)
+def enter():
+    global back1,back2,miko,enemy1,team
+    back1 = Back1()
+    back2 = Back2()
+    miko = Miko()
+    enemy1 = Enemy1()
+    team = [Enemy1() for i in range(10)]
 
-    def draw(self):
-        self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
+def exit():
+    global back1, back2, miko, enemy1, team
+    del(back1)
+    del(back2)
+    del(miko)
+    del(enemy1)
+    del(team)
 
-# initialization code
-open_canvas(pad_w,pad_h)
-
-back1 = Back1()
-back2 = Back2()
-miko = Miko()
-enemy1 = Enemy1()
-enemy2 = Enemy2()
-team = [Enemy1() for i in range(10)]
-team2 = [Enemy2() for i in range(9)]
-
-running = True
-
-# game main loop code
-while running:
-
-    handle_events()
-
-    clear_canvas()
-
-    back1.draw()
-    back2.draw()
+def update():
     back1.update()
     back2.update()
-    miko.draw()
     miko.update()
     for enemy1 in team:
-        enemy1.draw()
-    for enemy2 in team2:
-        enemy2.draw()
-    for enemy1 in team:
         enemy1.update()
-    for enemy2 in team2:
-        enemy2.update()
+
+def draw():
+    clear_canvas()
+    back1.draw()
+    back2.draw()
+    miko.draw()
+    for enemy1 in team:
+        enemy1.draw()
     update_canvas()
-
-    delay(0.05)
-
-# finalization code
-close_canvas()
+    delay(0.02)
