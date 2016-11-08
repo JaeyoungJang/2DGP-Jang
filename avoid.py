@@ -2,9 +2,11 @@ from pico2d import *
 import random
 
 import game_framework
-import title_state
 
 name = "MainState"
+
+enemy1_width = 74
+enemy1_height = 100
 
 class Back1:
     def __init__(self):
@@ -125,6 +127,12 @@ class Enemy1:
 
     def draw(self):
         self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
+
+class Hit:
+    global miko
+    def __init__(self):
+        self.image = load_image('enemy1die.png')
+        self.frame = 0
 
 def handle_events():
     global running,x,y,miko
