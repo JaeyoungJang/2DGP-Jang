@@ -146,7 +146,7 @@ def enter():
     back2 = Back2()
     miko = Miko()
     enemy1 = Enemy1()
-    team = [Enemy1() for i in range(10)]
+    team = [Enemy1() for i in range(8)]
 
 def exit():
     global back1, back2, miko, enemy1, team
