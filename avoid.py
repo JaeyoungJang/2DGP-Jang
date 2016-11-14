@@ -1,12 +1,12 @@
 from pico2d import *
+from time import sleep
 import random
 
+
 import game_framework
+import title_state
 
 name = "MainState"
-
-enemy1_width = 74
-enemy1_height = 100
 
 class Back1:
     def __init__(self):
@@ -45,7 +45,8 @@ class Miko:
         self.x = 50
         self.y = 300
         self.count = 0
-        self.weap = [Weapone() for i in range(50)]
+        self.diecount = 0
+        self.weap = [Weapone() for i in range(20)]
         self.frame = 0    # 미코 프레임
         self.framea = 0   # 무기 프레임
         self.righton = False
@@ -73,8 +74,9 @@ class Miko:
                 miko.weap[miko.count].xx = miko.x + 30
                 miko.weap[miko.count].yy = miko.y
                 miko.count += 1
-                if (miko.count >= 50):
+                if (miko.count >= 20):
                     miko.count = 0
+
         if event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 miko.righton = False
@@ -90,7 +92,7 @@ class Miko:
 
     def update(self):
         self.frame += 5
-        self.framea += 4
+        self.framea += 3
         if self.righton == True and self.x <860:
             self.x += 10
         if self.lefton == True and self.x > 40:
@@ -99,23 +101,37 @@ class Miko:
             self.y += 10
         if self.downon == True and self.y > 30:
             self.y -= 10
-        for i in range(50):
+        for i in range(20):
             if self.weap[i].state == True:
-                self.weap[i].xx += 20
+                self.weap[i].xx += 15
 
     def draw(self):
         if self.state == True:
             self.ani.clip_draw((self.frame%4) * 105, 0 , 80, 70, self.x, self.y)
         if self.state == False:
             self.image.draw(self.x,self.y)
-        for i in range(50):
+        for i in range(20):
             if self.weap[i].state == True:
                 self.weapone1.clip_draw((self.framea % 5) * 35, 0, 25, 40, self.weap[i].xx, self.weap[i].yy)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x-40,self.y-20,self.x+30,self.y+30
+
+    def draw_aa(self):
+        draw_rectangle(*self.get_aa(9))
+
+    def get_aa(self, i):
+        return self.weap[i].xx-10,self.weap[i].yy-10,self.weap[i].xx+3,self.weap[i].yy+12
 
 class Enemy1:
     def __init__(self):
         self.image = load_image('enemy1.png')
         self.frame = 0
+        self.framea = 0  # 무기 프레임
+        self.count = 0
         self.x, self.y = random.randint(1000,2000), random.randint(60,570)
 
     def update(self):
@@ -128,6 +144,11 @@ class Enemy1:
     def draw(self):
         self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
 
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x-39,self.y-47,self.x+39,self.y+47
 
 def handle_events():
     global running,x,y,miko
@@ -136,25 +157,49 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
+            #game_framework.quit()
+            game_framework.change_state(title_state)
         else:
             miko.handle_event(event)
 
 def enter():
-    global back1,back2,miko,enemy1,team
+    global back1, back2, miko, enemy1, team, font
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Enemy1()
-    team = [Enemy1() for i in range(9)]
+    team = [Enemy1() for i in range(11)]
+    font = load_font('ENCR10B.TTF', 115)
 
 def exit():
     global back1, back2, miko, enemy1, team
     del(back1)
     del(back2)
-    del(miko)
     del(enemy1)
     del(team)
+
+def collide1(a, b):
+    left_a, bottom_a,right_a,top_a = a.get_bb()
+    left_b, bottom_b,right_b,top_b = b.get_bb()
+
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+
+    return True
+
+def collide2(a, b):
+    for i in range(10):
+        left_a, bottom_a,right_a,top_a = a.get_aa(i)
+    left_b, bottom_b,right_b,top_b = b.get_bb()
+
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+
+    return True
 
 def update():
     back1.update()
@@ -162,13 +207,30 @@ def update():
     miko.update()
     for enemy1 in team:
         enemy1.update()
+    for enemy1 in team:
+        if collide2(miko, enemy1):
+            team.remove(enemy1)
 
 def draw():
+    global miko
+
+    hide_cursor()
     clear_canvas()
     back1.draw()
     back2.draw()
     miko.draw()
+    miko.draw_bb()
+    miko.draw_aa()
     for enemy1 in team:
         enemy1.draw()
+    for enemy1 in team:
+        enemy1.draw_bb()
+    for enemy1 in team:
+        if collide1(miko, enemy1):
+            font.draw(230, 300, 'WARNING!', (255, 0, 0))
+            sleep(0.01)
+            miko.diecount += 1
+            if (miko.diecount >= 10):
+                game_framework.change_state(title_state)
     update_canvas()
     delay(0.02)
