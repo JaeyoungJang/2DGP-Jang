@@ -132,23 +132,47 @@ class Enemy1:
         self.frame = 0
         self.framea = 0  # 무기 프레임
         self.count = 0
-        self.x, self.y = random.randint(1000,2000), random.randint(60,570)
+        self.x, self.y = random.randint(920, 1700), random.randint(60, 570)
 
     def update(self):
         self.frame += 5
-        self.x -= 5
+        self.x -= 10
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
 
     def draw(self):
-        self.image.clip_draw((self.frame%3) * 69,0,74,100,self.x,self.y)
+        self.image.clip_draw((self.frame % 4) * 60, 0, 60, 50, self.x, self.y)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x-39,self.y-47,self.x+39,self.y+47
+        return self.x - 30, self.y - 25, self.x + 20, self.y + 25
+
+class Enemy2:
+    def __init__(self):
+        self.image = load_image('enemy2.png')
+        self.frame = 0
+        self.framea = 0  # 무기 프레임
+        self.count = 0
+        self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
+
+    def update(self):
+        self.frame += 1
+        self.x -= 12
+        if self.x <=0:
+            self.x = random.randint(900,1500)
+            self.y = random.randint(80,570)
+
+    def draw(self):
+        self.image.clip_draw((self.frame % 3) * 69, 0, 74, 100, self.x, self.y)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x - 39, self.y - 47, self.x + 39, self.y + 47
 
 def handle_events():
     global running,x,y,miko
@@ -163,20 +187,22 @@ def handle_events():
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, team, font
+    global back1, back2, miko, enemy1, enemy2, team, team2, font
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Enemy1()
+    enemy2 = Enemy2()
     team = [Enemy1() for i in range(11)]
+    team2 = [Enemy2() for i in range(16)]
     font = load_font('ENCR10B.TTF', 115)
 
 def exit():
-    global back1, back2, miko, enemy1, team
+    global back1, back2, enemy1, enemy2
     del(back1)
     del(back2)
     del(enemy1)
-    del(team)
+    del(enemy2)
 
 def collide1(a, b):
     left_a, bottom_a,right_a,top_a = a.get_bb()
@@ -207,9 +233,14 @@ def update():
     miko.update()
     for enemy1 in team:
         enemy1.update()
+    for enemy2 in team2:
+        enemy2.update()
     for enemy1 in team:
         if collide2(miko, enemy1):
             team.remove(enemy1)
+    for enemy2 in team2:
+        if collide2(miko, enemy2):
+            team2.remove(enemy2)
 
 def draw():
     global miko
@@ -219,18 +250,33 @@ def draw():
     back1.draw()
     back2.draw()
     miko.draw()
-    miko.draw_bb()
-    miko.draw_aa()
+    #miko.draw_bb()
+    #miko.draw_aa()
+    #for enemy1 in team:
+        #enemy1.draw_bb()
+    #for enemy2 in team2:
+        #enemy2.draw_bb()
     for enemy1 in team:
         enemy1.draw()
-    for enemy1 in team:
-        enemy1.draw_bb()
+    for enemy2 in team2:
+        enemy2.draw()
+
+
     for enemy1 in team:
         if collide1(miko, enemy1):
             font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.01)
             miko.diecount += 1
-            if (miko.diecount >= 10):
+            if (miko.diecount >= 6):
                 game_framework.change_state(title_state)
+
+    for enemy2 in team2:
+        if collide1(miko, enemy2):
+            font.draw(230, 300, 'WARNING!', (255, 0, 0))
+            sleep(0.01)
+            miko.diecount += 1
+            if (miko.diecount >= 6):
+                game_framework.change_state(title_state)
+
     update_canvas()
     delay(0.02)
