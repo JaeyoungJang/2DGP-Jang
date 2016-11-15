@@ -54,6 +54,7 @@ class Miko:
         self.upon = False
         self.downon = False
         self.state = False  # 캐릭터 a입력시 이미지 변경
+        self.attstate = False
         self.image = load_image('miko.png')
         self.ani = load_image('mikoattack.png')
         self.weapone1 = load_image('weapone1.png')
@@ -68,8 +69,9 @@ class Miko:
                 miko.upon = True
             elif event.key == SDLK_DOWN:
                 miko.downon = True
-            elif event.key == SDLK_a:
+            elif event.key == SDLK_a and miko.attstate == False:
                 miko.state = True
+                miko.attstate = True
                 miko.weap[miko.count].state = True
                 miko.weap[miko.count].xx = miko.x + 30
                 miko.weap[miko.count].yy = miko.y
@@ -102,8 +104,9 @@ class Miko:
         if self.downon == True and self.y > 30:
             self.y -= 10
         for i in range(20):
-            if self.weap[i].state == True:
-                self.weap[i].xx += 15
+            if self.attstate == True:
+                if self.weap[i].state == True:
+                    self.weap[i].xx += 15
 
     def draw(self):
         if self.state == True:
@@ -120,23 +123,21 @@ class Miko:
     def get_bb(self):
         return self.x-40,self.y-20,self.x+30,self.y+30
 
-    def draw_aa(self):
-        draw_rectangle(*self.get_aa(9))
+    def draw_aa(self,i):
+        draw_rectangle(*self.get_aa(i))
 
-    def get_aa(self, i):
-        return self.weap[i].xx-10,self.weap[i].yy-10,self.weap[i].xx+3,self.weap[i].yy+12
+    def get_aa(self,i):
+        return self.weap[i].xx-10,self.weap[i].yy-10,self.weap[i].xx-10,self.weap[i].yy+12
 
 class Enemy1:
     def __init__(self):
         self.image = load_image('enemy1.png')
         self.frame = 0
-        self.framea = 0  # 무기 프레임
-        self.count = 0
         self.x, self.y = random.randint(920, 1700), random.randint(60, 570)
 
     def update(self):
         self.frame += 5
-        self.x -= 10
+        self.x -= 7
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
@@ -148,19 +149,17 @@ class Enemy1:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 30, self.y - 25, self.x + 20, self.y + 25
+        return self.x - 28, self.y - 23, self.x + 18, self.y + 23
 
 class Enemy2:
     def __init__(self):
         self.image = load_image('enemy2.png')
         self.frame = 0
-        self.framea = 0  # 무기 프레임
-        self.count = 0
         self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
 
     def update(self):
         self.frame += 1
-        self.x -= 12
+        self.x -= 9
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
@@ -172,10 +171,9 @@ class Enemy2:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 39, self.y - 47, self.x + 39, self.y + 47
+        return self.x - 30, self.y - 40, self.x + 30, self.y + 47
 
 def handle_events():
-    global running,x,y,miko
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -215,9 +213,8 @@ def collide1(a, b):
 
     return True
 
-def collide2(a, b):
-    for i in range(10):
-        left_a, bottom_a,right_a,top_a = a.get_aa(i)
+def collide2(a, b, i):
+    left_a, bottom_a,right_a,top_a = a.get_aa(i)
     left_b, bottom_b,right_b,top_b = b.get_bb()
 
     if left_a > right_b : return False
@@ -235,39 +232,43 @@ def update():
         enemy1.update()
     for enemy2 in team2:
         enemy2.update()
-    for enemy1 in team:
-        if collide2(miko, enemy1):
-            team.remove(enemy1)
-    for enemy2 in team2:
-        if collide2(miko, enemy2):
-            team2.remove(enemy2)
+    for i in range(20):
+        for enemy1 in team:
+            if collide2(miko, enemy1,i):
+                miko.attstate = False
+                team.remove(enemy1)
+                miko.weap[i].yy = 1000
+    for i in range(20):
+        for enemy2 in team2:
+            if collide2(miko, enemy2,i):
+                miko.attstate = False
+                team2.remove(enemy2)
+                miko.weap[i].yy = 1000
 
 def draw():
-    global miko
-
     hide_cursor()
     clear_canvas()
     back1.draw()
     back2.draw()
     miko.draw()
-    #miko.draw_bb()
-    #miko.draw_aa()
-    #for enemy1 in team:
-        #enemy1.draw_bb()
-    #for enemy2 in team2:
-        #enemy2.draw_bb()
+    for i in range(20):
+        miko.draw_aa(i)
+    miko.draw_bb()
+    for enemy1 in team:
+        enemy1.draw_bb()
+    for enemy2 in team2:
+        enemy2.draw_bb()
     for enemy1 in team:
         enemy1.draw()
     for enemy2 in team2:
         enemy2.draw()
 
-
     for enemy1 in team:
         if collide1(miko, enemy1):
             font.draw(230, 300, 'WARNING!', (255, 0, 0))
-            sleep(0.01)
+            sleep(0.02)
             miko.diecount += 1
-            if (miko.diecount >= 6):
+            if (miko.diecount >= 5):
                 game_framework.change_state(title_state)
 
     for enemy2 in team2:
@@ -275,8 +276,8 @@ def draw():
             font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.01)
             miko.diecount += 1
-            if (miko.diecount >= 6):
+            if (miko.diecount >= 3):
                 game_framework.change_state(title_state)
 
     update_canvas()
-    delay(0.02)
+    delay(0.03)
