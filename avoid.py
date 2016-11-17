@@ -159,7 +159,7 @@ class Enemy2:
 
     def update(self):
         self.frame += 1
-        self.x -= 9
+        self.x -= 10
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
@@ -280,4 +280,4 @@ def draw():
                 game_framework.change_state(title_state)
 
     update_canvas()
-    delay(0.03)
+    delay(0.02)
