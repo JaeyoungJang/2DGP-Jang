@@ -137,7 +137,7 @@ class Enemy1:
 
     def update(self):
         self.frame += 5
-        self.x -= 7
+        self.x -= 10
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
@@ -159,7 +159,7 @@ class Enemy2:
 
     def update(self):
         self.frame += 1
-        self.x -= 10
+        self.x -= 12
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
@@ -251,13 +251,13 @@ def draw():
     back1.draw()
     back2.draw()
     miko.draw()
-    for i in range(20):
-        miko.draw_aa(i)
-    miko.draw_bb()
-    for enemy1 in team:
-        enemy1.draw_bb()
-    for enemy2 in team2:
-        enemy2.draw_bb()
+    #for i in range(20):
+    #    miko.draw_aa(i)
+    #miko.draw_bb()
+    #for enemy1 in team:
+    #    enemy1.draw_bb()
+    #for enemy2 in team2:
+    #    enemy2.draw_bb()
     for enemy1 in team:
         enemy1.draw()
     for enemy2 in team2:
