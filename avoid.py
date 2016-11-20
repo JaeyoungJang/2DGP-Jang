@@ -191,8 +191,8 @@ def enter():
     miko = Miko()
     enemy1 = Enemy1()
     enemy2 = Enemy2()
-    team = [Enemy1() for i in range(11)]
-    team2 = [Enemy2() for i in range(16)]
+    team = [Enemy1() for i in range(9)]
+    team2 = [Enemy2() for i in range(15)]
     font = load_font('ENCR10B.TTF', 115)
 
 def exit():
