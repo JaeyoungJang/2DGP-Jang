@@ -9,7 +9,7 @@ image = None
 
 def enter():
     global image
-    image = load_image('how.png')
+    image = load_image('how_to_play.png')
 
 def exit():
     pass

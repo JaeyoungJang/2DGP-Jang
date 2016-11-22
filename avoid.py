@@ -137,7 +137,7 @@ class Enemy1:
 
     def update(self):
         self.frame += 5
-        self.x -= 10
+        self.x -= 9
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
