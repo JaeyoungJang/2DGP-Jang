@@ -14,12 +14,12 @@ class Back1:
             Back1.image = load_image('back.png')
         self.back1_x = 450      #first 배경 x좌표위치
 
-    def update(self, frame_time):
+    def update(self,frame_time):
         self.back1_x -= 10
         if self.back1_x <= -450:
             self.back1_x = 1350
 
-    def draw(self, frame_time):
+    def draw(self):
         self.image.draw(self.back1_x,300)
 
 class Back2:
@@ -29,12 +29,12 @@ class Back2:
             Back2.image = load_image('back2.png')
         self.back2_x = 1350     #Second 배경 x좌표위치
 
-    def update(self, frame_time):
+    def update(self,frame_time):
         self.back2_x -= 10
         if self.back2_x <= -450:
             self.back2_x = 1350
 
-    def draw(self, frame_time):
+    def draw(self):
         self.image.draw(self.back2_x,300)
 
 class Weapone:
@@ -44,12 +44,12 @@ class Weapone:
         self.state = False
 
 class Miko:
-    PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+
+    PIXEL_PER_METER = (13.0 / 0.3)  # 10 pixel 30 cm
     RUN_SPEED_KMPH = 20.0  # Km / Hour
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
-
     TIME_PER_ACTION = 0.5
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
     FRAMES_PER_ACTION = 4
@@ -57,8 +57,10 @@ class Miko:
     miko_image = None
     miko_attack_image = None
     miko_weapone_image = None
+
     def __init__(self):
-        self.x, self.y = 50, 300
+        self.x = 50
+        self.y = 300
         self.count = 0
         self.diecount = 0
         self.weap = [Weapone() for i in range(20)]
@@ -70,9 +72,11 @@ class Miko:
         self.downon = False
         self.state = False  # 캐릭터 a입력시 이미지 변경
         self.attstate = False
+
         self.life_time = 0.0
         self.total_frames = 0.0
-        self.dir = 0
+        self.dir = 1
+
         if Miko.miko_image == None:
             Miko.miko_image = load_image('miko.png')
         if Miko.miko_attack_image == None:
@@ -80,46 +84,47 @@ class Miko:
         if Miko.miko_weapone_image == None:
             Miko.miko_weapone_image = load_image('weapone1.png')
 
-    def handle_event(self, frame_time):
-        events = get_events()
-        for event in events:
-            if event.type == SDL_KEYDOWN:
-                if event.key == SDLK_RIGHT:
-                    miko.righton = True
-                elif event.key == SDLK_LEFT:
-                    miko.lefton = True
-                elif event.key == SDLK_UP:
-                    miko.upon = True
-                elif event.key == SDLK_DOWN:
-                    miko.downon = True
-                elif event.key == SDLK_a and miko.attstate == False:
-                    miko.state = True
-                    miko.attstate = True
-                    miko.weap[miko.count].state = True
-                    miko.weap[miko.count].xx = miko.x + 30
-                    miko.weap[miko.count].yy = miko.y
-                    miko.count += 1
-                    if (miko.count >= 20):
-                        miko.count = 0
-            if event.type == SDL_KEYUP:
-                if event.key == SDLK_RIGHT:
-                    miko.righton = False
-                elif event.key == SDLK_LEFT:
-                    miko.lefton = False
-                elif event.key == SDLK_UP:
-                    miko.upon = False
-                elif event.key == SDLK_DOWN:
-                    miko.downon = False
-                elif event.key == SDLK_a:
-                    miko.state = False
-                    miko.weap[miko.count].state = False
+    def handle_event(self, event):
+        if event.type == SDL_KEYDOWN:
+            if event.key == SDLK_RIGHT:
+                miko.righton = True
+            elif event.key == SDLK_LEFT:
+                miko.lefton = True
+            elif event.key == SDLK_UP:
+                miko.upon = True
+            elif event.key == SDLK_DOWN:
+                miko.downon = True
+            elif event.key == SDLK_a and miko.attstate == False:
+                miko.state = True
+                miko.attstate = True
+                miko.weap[miko.count].state = True
+                miko.weap[miko.count].xx = miko.x + 30
+                miko.weap[miko.count].yy = miko.y
+                miko.count += 1
+                if (miko.count >= 20):
+                    miko.count = 0
 
-    def update(self, frame_time):
-        self.frame += int(self.total_frames) % 5
-        self.framea += int(self.total_frames) % 3
-        self.total_frames += Miko.FRAMES_PER_ACTION * Miko.ACTION_PER_TIME * frame_time
+        if event.type == SDL_KEYUP:
+            if event.key == SDLK_RIGHT:
+                miko.righton = False
+            elif event.key == SDLK_LEFT:
+                miko.lefton = False
+            elif event.key == SDLK_UP:
+                miko.upon = False
+            elif event.key == SDLK_DOWN:
+                miko.downon = False
+            elif event.key == SDLK_a:
+                miko.state = False
+                miko.weap[miko.count].state = False
+
+    def update(self,frame_time):
+
+        self.frame += int(self.total_frames) % 8
+        self.framea += int(self.total_frames) % 5
         self.life_time += frame_time
-        distance = Miko.RUN_SPEED_PPS * frame_time
+        distance = miko.RUN_SPEED_PPS * frame_time
+        self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
+
         if self.righton == True and self.x <860:
             self.x += (self.dir * distance)
         if self.lefton == True and self.x > 40:
@@ -131,9 +136,9 @@ class Miko:
         for i in range(20):
             if self.attstate == True:
                 if self.weap[i].state == True:
-                    self.weap[i].xx += 15
+                    self.weap[i].xx += (self.dir * distance*1.3)
 
-    def draw(self, frame_time):
+    def draw(self):
         if self.state == True:
             self.miko_attack_image.clip_draw((self.frame%4) * 105, 0 , 80, 70, self.x, self.y)
         if self.state == False:
@@ -155,21 +160,38 @@ class Miko:
         return self.weap[i].xx-10,self.weap[i].yy-10,self.weap[i].xx-10,self.weap[i].yy+12
 
 class Enemy1:
+
+    PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+    RUN_SPEED_KMPH = 20.0  # Km / Hour
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 4
+
     image = None
     def __init__(self):
         if Enemy1.image == None:
             Enemy1.image = load_image('enemy1.png')
-        self.frame = 0
-        self.x, self.y = random.randint(920, 1700), random.randint(60, 570)
+        self.frame = random.randint(0,10)
+        self.life_time = 0.0
+        self.total_frames = 0.0
+        self.dir = 1.0
+        self.x, self.y = random.randint(950, 1700), random.randint(60, 570)
 
-    def update(self, frame_time):
-        self.frame += 5
-        self.x -= 9
+    def update(self,frame_time):
+        self.frame += int(self.total_frames) % 2
+        self.life_time += frame_time
+        distance = miko.RUN_SPEED_PPS * frame_time
+        self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
+
+        self.x -= (self.dir * distance)
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
 
-    def draw(self, frame_time):
+    def draw(self):
         self.image.clip_draw((self.frame % 4) * 60, 0, 60, 50, self.x, self.y)
 
     def draw_bb(self):
@@ -179,21 +201,38 @@ class Enemy1:
         return self.x - 28, self.y - 23, self.x + 18, self.y + 23
 
 class Enemy2:
+
+    PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+    RUN_SPEED_KMPH = 20.0  # Km / Hour
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 4
+
     image = None
     def __init__(self):
         if Enemy2.image == None:
             Enemy2.image = load_image('enemy2.png')
-        self.frame = 0
+        self.frame = random.randint(0,4)
+        self.life_time = 0.0
+        self.total_frames = 0.0
+        self.dir = 1.25
         self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
 
-    def update(self, frame_time):
-        self.frame += 1
-        self.x -= 12
+    def update(self,frame_time):
+        self.frame += int(self.total_frames) % 5
+        self.life_time += frame_time
+        distance = miko.RUN_SPEED_PPS * frame_time
+        self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
+
+        self.x -= (self.dir * distance)
         if self.x <=0:
             self.x = random.randint(900,1500)
             self.y = random.randint(80,570)
 
-    def draw(self, frame_time):
+    def draw(self):
         self.image.clip_draw((self.frame % 3) * 69, 0, 74, 100, self.x, self.y)
 
     def draw_bb(self):
@@ -203,6 +242,7 @@ class Enemy2:
         return self.x - 30, self.y - 40, self.x + 30, self.y + 47
 
 def handle_events(frame_time):
+    global miko
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -219,8 +259,8 @@ def enter():
     miko = Miko()
     enemy1 = Enemy1()
     enemy2 = Enemy2()
-    enemies1 = [Enemy1() for i in range(9)]
-    enemies2 = [Enemy2() for i in range(15)]
+    enemies1 = [Enemy1() for i in range(11)]
+    enemies2 = [Enemy2() for i in range(16)]
     font = load_font('ENCR10B.TTF', 115)
 
 def exit():
@@ -276,9 +316,9 @@ def update(frame_time):
 def draw(frame_time):
     hide_cursor()
     clear_canvas()
-    back1.draw(frame_time)
-    back2.draw(frame_time)
-    miko.draw(frame_time)
+    back1.draw()
+    back2.draw()
+    miko.draw()
     #for i in range(20):
     #    miko.draw_aa(i)
     #miko.draw_bb()
@@ -287,9 +327,9 @@ def draw(frame_time):
     #for enemy2 in enemies2:
     #    enemy2.draw_bb()
     for enemy1 in enemies1:
-        enemy1.draw(frame_time)
+        enemy1.draw()
     for enemy2 in enemies2:
-        enemy2.draw(frame_time)
+        enemy2.draw()
 
     for enemy1 in enemies1:
         if collide1(miko, enemy1):
