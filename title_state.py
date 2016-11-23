@@ -15,7 +15,7 @@ def exit():
     global image
     del(image)
 
-def handle_events():
+def handle_events(frame_time):
     global x,y
 
     events = get_events()
@@ -35,12 +35,12 @@ def handle_events():
                 game_framework.change_state(avoid)
             if 590< x and x <870 and 380<y and y<440:
                 game_framework.change_state(how)
-def draw():
+def draw(frame_time):
     clear_canvas()
     image.draw(450,300)
     update_canvas()
 
-def update():
+def update(frame_time):
     show_cursor()
 
 def pause():
