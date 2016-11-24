@@ -4,6 +4,7 @@ from time import sleep
 import random
 import game_framework
 import title_state
+import game_over_state
 
 name = "MainState"
 
@@ -145,7 +146,7 @@ class Miko:
             self.miko_image.draw(self.x,self.y)
         for i in range(20):
             if self.weap[i].state == True:
-                self.miko_weapone_image.clip_draw((self.framea % 5) * 35, 0, 25, 40, self.weap[i].xx, self.weap[i].yy)
+                self.miko_weapone_image.clip_draw((self.framea % 5) * 35, 0, 25, 30, self.weap[i].xx, self.weap[i].yy)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
@@ -161,7 +162,7 @@ class Miko:
 
 class Enemy1:
 
-    PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+    PIXEL_PER_METER = (30.0 / 0.3)  # 10 pixel 30 cm
     RUN_SPEED_KMPH = 20.0  # Km / Hour
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
@@ -215,14 +216,14 @@ class Enemy2:
     def __init__(self):
         if Enemy2.image == None:
             Enemy2.image = load_image('enemy2.png')
-        self.frame = random.randint(0,4)
+        self.frame = random.randint(0,10)
         self.life_time = 0.0
         self.total_frames = 0.0
-        self.dir = 1.25
+        self.dir = 1.15
         self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
 
     def update(self,frame_time):
-        self.frame += int(self.total_frames) % 5
+        self.frame += int(self.total_frames) % 3
         self.life_time += frame_time
         distance = miko.RUN_SPEED_PPS * frame_time
         self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
@@ -253,7 +254,7 @@ def handle_events(frame_time):
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, font
+    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
@@ -261,7 +262,9 @@ def enter():
     enemy2 = Enemy2()
     enemies1 = [Enemy1() for i in range(11)]
     enemies2 = [Enemy2() for i in range(16)]
-    font = load_font('ENCR10B.TTF', 115)
+    warning_font = load_font('ENCR10B.TTF', 115)
+    score_font = load_font('ENCR10B.TTF', 25)
+    score_count = 0
 
 def exit():
     global back1, back2, enemy1, enemy2
@@ -293,6 +296,7 @@ def collide2(a, b, i):
     return True
 
 def update(frame_time):
+    global score_count,die_delay
     back1.update(frame_time)
     back2.update(frame_time)
     miko.update(frame_time)
@@ -303,15 +307,18 @@ def update(frame_time):
     for i in range(20):
         for enemy1 in enemies1:
             if collide2(miko, enemy1,i):
+                score_count += 10
                 miko.attstate = False
                 enemies1.remove(enemy1)
                 miko.weap[i].yy = 1000
     for i in range(20):
         for enemy2 in enemies2:
             if collide2(miko, enemy2,i):
+                score_count += 15
                 miko.attstate = False
                 enemies2.remove(enemy2)
                 miko.weap[i].yy = 1000
+
 
 def draw(frame_time):
     hide_cursor()
@@ -331,21 +338,23 @@ def draw(frame_time):
     for enemy2 in enemies2:
         enemy2.draw()
 
+    score_font.draw(700,570,'score: '+str(score_count), (255,255,255))
     for enemy1 in enemies1:
         if collide1(miko, enemy1):
-            font.draw(230, 300, 'WARNING!', (255, 0, 0))
+            warning_font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.02)
             miko.diecount += 1
             if (miko.diecount >= 5):
-                game_framework.change_state(title_state)
+                game_framework.change_state(game_over_state)
 
     for enemy2 in enemies2:
         if collide1(miko, enemy2):
-            font.draw(230, 300, 'WARNING!', (255, 0, 0))
+            warning_font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.01)
             miko.diecount += 1
             if (miko.diecount >= 3):
-                game_framework.change_state(title_state)
+                game_framework.change_state(game_over_state)
+
 
     update_canvas()
-    delay(0.02)
+    delay(0.01)
