@@ -260,8 +260,8 @@ def enter():
     miko = Miko()
     enemy1 = Enemy1()
     enemy2 = Enemy2()
-    enemies1 = [Enemy1() for i in range(11)]
-    enemies2 = [Enemy2() for i in range(16)]
+    enemies1 = [Enemy1() for i in range(9)]
+    enemies2 = [Enemy2() for i in range(15)]
     warning_font = load_font('ENCR10B.TTF', 115)
     score_font = load_font('ENCR10B.TTF', 25)
     score_count = 0
@@ -357,4 +357,4 @@ def draw(frame_time):
 
 
     update_canvas()
-    delay(0.01)
+    delay(0.02)
