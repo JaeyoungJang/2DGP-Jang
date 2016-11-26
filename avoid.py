@@ -12,7 +12,7 @@ class Back1:
     image = None
     def __init__(self):
         if Back1.image == None:
-            Back1.image = load_image('back.png')
+            Back1.image = load_image('space_back1.png')
         self.back1_x = 450      #first 배경 x좌표위치
 
     def update(self,frame_time):
@@ -27,7 +27,7 @@ class Back2:
     image = None
     def __init__(self):
         if Back2.image == None:
-            Back2.image = load_image('back2.png')
+            Back2.image = load_image('space_back2.png')
         self.back2_x = 1350     #Second 배경 x좌표위치
 
     def update(self,frame_time):
@@ -320,6 +320,7 @@ def update(frame_time):
                 miko.weap[i].yy = 1000
 
 
+
 def draw(frame_time):
     hide_cursor()
     clear_canvas()
@@ -357,4 +358,4 @@ def draw(frame_time):
 
 
     update_canvas()
-    delay(0.02)
+    delay(0.001)
