@@ -179,7 +179,7 @@ class Enemy1:
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.0
-        self.x, self.y = random.randint(950, 1700), random.randint(60, 570)
+        self.x, self.y = random.randint(1000, 2500), random.randint(60, 570)
 
     def update(self,frame_time):
         self.frame += int(self.total_frames) % 2
@@ -260,8 +260,8 @@ def enter():
     miko = Miko()
     enemy1 = Enemy1()
     enemy2 = Enemy2()
-    enemies1 = [Enemy1() for i in range(9)]
-    enemies2 = [Enemy2() for i in range(15)]
+    enemies1 = [Enemy1() for i in range(20)]
+    enemies2 = [Enemy2() for i in range(12)]
     warning_font = load_font('ENCR10B.TTF', 115)
     score_font = load_font('ENCR10B.TTF', 25)
     score_count = 0
@@ -358,4 +358,4 @@ def draw(frame_time):
 
 
     update_canvas()
-    delay(0.001)
+    delay(0.02)
