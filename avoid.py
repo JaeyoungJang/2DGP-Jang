@@ -179,7 +179,7 @@ class Enemy1:
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.0
-        self.x, self.y = random.randint(1000, 2500), random.randint(60, 570)
+        self.x, self.y = random.randint(1100, 2500), random.randint(60, 570)
 
     def update(self,frame_time):
         self.frame += int(self.total_frames) % 2
@@ -230,7 +230,7 @@ class Enemy2:
 
         self.x -= (self.dir * distance)
         if self.x <=0:
-            self.x = random.randint(900,1500)
+            self.x = random.randint(900,2000)
             self.y = random.randint(80,570)
 
     def draw(self):
@@ -261,7 +261,7 @@ def enter():
     enemy1 = Enemy1()
     enemy2 = Enemy2()
     enemies1 = [Enemy1() for i in range(20)]
-    enemies2 = [Enemy2() for i in range(12)]
+    enemies2 = [Enemy2() for i in range(15)]
     warning_font = load_font('ENCR10B.TTF', 115)
     score_font = load_font('ENCR10B.TTF', 25)
     score_count = 0
@@ -314,7 +314,7 @@ def update(frame_time):
     for i in range(20):
         for enemy2 in enemies2:
             if collide2(miko, enemy2,i):
-                score_count += 15
+                score_count += 20
                 miko.attstate = False
                 enemies2.remove(enemy2)
                 miko.weap[i].yy = 1000
@@ -358,4 +358,4 @@ def draw(frame_time):
 
 
     update_canvas()
-    delay(0.02)
+    delay(0.002)
