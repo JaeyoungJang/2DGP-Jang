@@ -319,7 +319,7 @@ def update(frame_time):
                 enemies2.remove(enemy2)
                 miko.weap[i].yy = 1000
 
-
+    print(miko.diecount)
 
 def draw(frame_time):
     hide_cursor()
