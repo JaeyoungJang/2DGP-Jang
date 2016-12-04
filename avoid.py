@@ -152,7 +152,7 @@ class Miko:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x-40,self.y-20,self.x+30,self.y+30
+        return self.x-35,self.y-20,self.x+25,self.y+30
 
     def draw_aa(self,i):
         draw_rectangle(*self.get_aa(i))
@@ -179,7 +179,7 @@ class Enemy1:
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.0
-        self.x, self.y = random.randint(1100, 2500), random.randint(60, 570)
+        self.x, self.y = random.randint(1100, 3000), random.randint(60, 570)
 
     def update(self,frame_time):
         self.frame += int(self.total_frames) % 2
@@ -199,7 +199,7 @@ class Enemy1:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 28, self.y - 23, self.x + 18, self.y + 23
+        return self.x - 25, self.y - 20, self.x + 15, self.y + 20
 
 class Enemy2:
 
@@ -213,17 +213,22 @@ class Enemy2:
     FRAMES_PER_ACTION = 4
 
     image = None
+    hit_image = None
     def __init__(self):
         if Enemy2.image == None:
             Enemy2.image = load_image('enemy2.png')
+        if Enemy2.hit_image == None:
+            Enemy2.hit_image = load_image('enemy2die.png')
         self.frame = random.randint(0,10)
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.15
         self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
+        self.state = False
 
     def update(self,frame_time):
         self.frame += int(self.total_frames) % 3
+        self.framea = int(self.total_frames) % 5
         self.life_time += frame_time
         distance = miko.RUN_SPEED_PPS * frame_time
         self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
@@ -234,13 +239,16 @@ class Enemy2:
             self.y = random.randint(80,570)
 
     def draw(self):
-        self.image.clip_draw((self.frame % 3) * 69, 0, 74, 100, self.x, self.y)
+        if self.state == False:
+            self.image.clip_draw((self.frame % 3) * 69, 0, 74, 100, self.x, self.y)
+        if self.state == True:
+            self.hit_image.clip_draw((self.framea % 2)* 65, 0, 74, 100, self.x, self.y)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 30, self.y - 40, self.x + 30, self.y + 47
+        return self.x - 25, self.y - 30, self.x + 25, self.y + 42
 
 def handle_events(frame_time):
     global miko
@@ -254,17 +262,18 @@ def handle_events(frame_time):
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count
+    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Enemy1()
     enemy2 = Enemy2()
-    enemies1 = [Enemy1() for i in range(10)]
-    enemies2 = [Enemy2() for i in range(13)]
+    enemies1 = [Enemy1() for i in range(20)]
+    enemies2 = [Enemy2() for i in range(15)]
     warning_font = load_font('ENCR10B.TTF', 115)
     score_font = load_font('ENCR10B.TTF', 25)
-    score_count = 0
+    score_count = 0             #점수
+    second_collision = 0        #enemy2 두번째충돌시 제거
 
 def exit():
     global back1, back2, enemy1, enemy2
@@ -296,30 +305,39 @@ def collide2(a, b, i):
     return True
 
 def update(frame_time):
-    global score_count,die_delay
+    global score_count,second_collision,die_delay
     back1.update(frame_time)
     back2.update(frame_time)
     miko.update(frame_time)
+
     for enemy1 in enemies1:
         enemy1.update(frame_time)
+
     for enemy2 in enemies2:
         enemy2.update(frame_time)
+
     for i in range(20):
         for enemy1 in enemies1:
             if collide2(miko, enemy1,i):
-                score_count += 10
+                #print(second_collision)
+                score_count += 10               #score+
                 miko.attstate = False
                 enemies1.remove(enemy1)
                 miko.weap[i].yy = 1000
+
     for i in range(20):
         for enemy2 in enemies2:
             if collide2(miko, enemy2,i):
-                score_count += 20
+                score_count += 15               #score+
+                second_collision += 20          #enemy2는 두번째충돌시 몬스터제거
                 miko.attstate = False
-                enemies2.remove(enemy2)
+                enemy2.state = True
                 miko.weap[i].yy = 1000
-
-    print(miko.diecount)
+                if second_collision >= 21:      #enemy2는 두번째 충돌시 삭제
+                    #print(second_collision)
+                    second_collision = 0
+                    enemies2.remove(enemy2)
+                    miko.weap[i].yy = 1000
 
 def draw(frame_time):
     hide_cursor()
@@ -345,6 +363,7 @@ def draw(frame_time):
             warning_font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.02)
             miko.diecount += 1
+            print(miko.diecount)
             if (miko.diecount >= 5):
                 game_framework.change_state(game_over_state)
 
@@ -352,10 +371,11 @@ def draw(frame_time):
         if collide1(miko, enemy2):
             warning_font.draw(230, 300, 'WARNING!', (255, 0, 0))
             sleep(0.01)
-            miko.diecount += 1
+            miko.diecount += 3
+            print(miko.diecount)
             if (miko.diecount >= 3):
                 game_framework.change_state(game_over_state)
 
 
     update_canvas()
-    delay(0.002)
+    delay(0.001)
