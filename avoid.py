@@ -288,6 +288,20 @@ class Boss:
         if(score_count >= 340):
             self.image.clip_draw((self.frame % 7) * 262, 0, 253, 550, self.x, self.y)
 
+class Collision_line:       # if miko.weap.x >= 900 , miko.attstate = False
+    def __init__(self):
+        self.x,self.y =900,300
+        Collision_line.image = load_image('line.png')
+
+    def draw(self):
+        self.image.draw(self.x,self.y)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x - 5, self.y - 300, self.x + 5, self.y + 300
+
 def handle_events(frame_time):
     global miko
     events = get_events()
@@ -300,14 +314,16 @@ def handle_events(frame_time):
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision,boss
+    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision,boss,collision_line,line
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
     enemy2 = Devil()
     boss = Boss()
-    enemies1 = [Blue_monster() for i in range(10)]      #blue monster
+    collision_line = Collision_line()
+    line = [Collision_line() for i in range(2)]
+    enemies1 = [Blue_monster() for i in range(15)]      #blue monster
     enemies2 = [Devil() for i in range(12)]             #devil
     warning_font = load_font('ENCR10B.TTF', 115)        #warning view
     score_font = load_font('ENCR10B.TTF', 25)           #score view
@@ -378,6 +394,12 @@ def update(frame_time):
                     enemies2.remove(enemy2)
                     miko.weap[i].yy = 1000
 
+    for i in range(20):
+        for collision_line in line:
+            if collide2(miko, collision_line, i):
+                miko.attstate = False
+                miko.weap[i].yy =1000
+
 def draw(frame_time):
     hide_cursor()
     clear_canvas()
@@ -393,6 +415,7 @@ def draw(frame_time):
     #    enemy1.draw_bb()
     #for enemy2 in enemies2:
     #    enemy2.draw_bb()
+    #collision_line.draw_bb()
 
     for enemy1 in enemies1:
         enemy1.draw()
@@ -419,6 +442,5 @@ def draw(frame_time):
             if (miko.diecount <= 0):
                 game_framework.change_state(game_over_state)
 
-
     update_canvas()
-    delay(0.004)
+    delay(0.002)
