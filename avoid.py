@@ -277,7 +277,7 @@ class Boss:
         distance = miko.RUN_SPEED_PPS * frame_time
         self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
 
-        if score_count >=340:               #score over 500, boss appearance
+        if score_count >=350:               #score over 350, boss appearance
             self.x -= (self.dir * distance)
 
         if self.x <=700:
@@ -285,8 +285,14 @@ class Boss:
             self.y = 300
 
     def draw(self):
-        if(score_count >= 340):
+        if(score_count >= 350):
             self.image.clip_draw((self.frame % 7) * 262, 0, 253, 550, self.x, self.y)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x - 100, self.y - 160, self.x + 110, self.y + 210
 
 class Collision_line:       # if miko.weap.x >= 900 , miko.attstate = False
     def __init__(self):
@@ -314,28 +320,30 @@ def handle_events(frame_time):
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision,boss,collision_line,line
+    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision, boss, boss1, collision_line, line
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
+    enemies1 = [Blue_monster() for i in range(15)]  # blue monster
     enemy2 = Devil()
+    enemies2 = [Devil() for i in range(12)]  # devil
     boss = Boss()
+    boss1 = [Boss()for i in range(1)] # boss
     collision_line = Collision_line()
-    line = [Collision_line() for i in range(2)]
-    enemies1 = [Blue_monster() for i in range(15)]      #blue monster
-    enemies2 = [Devil() for i in range(12)]             #devil
+    line = [Collision_line() for i in range(1)]
     warning_font = load_font('ENCR10B.TTF', 115)        #warning view
     score_font = load_font('ENCR10B.TTF', 25)           #score view
     score_count = 0             #score
     second_collision = 0        #devil second collision, remove
 
 def exit():
-    global back1, back2, enemy1, enemy2
+    global back1, back2, enemy1, enemy2, boss
     del(back1)
     del(back2)
     del(enemy1)
     del(enemy2)
+    del(boss)
 
 def collide1(a, b):                             #miko body, enemy collision
     left_a, bottom_a,right_a,top_a = a.get_bb()
@@ -364,41 +372,52 @@ def update(frame_time):
     back1.update(frame_time)
     back2.update(frame_time)
     miko.update(frame_time)
-    boss.update(frame_time)
-
     for enemy1 in enemies1:
         enemy1.update(frame_time)
-
     for enemy2 in enemies2:
         enemy2.update(frame_time)
+    for boss in boss1:
+        boss.update(frame_time)
 
     for i in range(20):
         for enemy1 in enemies1:
-            if collide2(miko, enemy1,i):        #miko, blue monster collision
+            if collide2(miko, enemy1,i):        #(miko.weap) , (blue monster) collision
                 score_count += 10               #score+
                 miko.attstate = False
                 enemies1.remove(enemy1)
                 miko.weap[i].yy = 1000
 
     for i in range(20):
-        for enemy2 in enemies2:                 #miko, devil collsion
+        for enemy2 in enemies2:                 #(miko.weap) ,(devil)collsion
             if collide2(miko, enemy2,i):
-                second_collision += 20          #devil, remove of second collision
+                second_collision += 20          #(devil), remove of second collision
                 miko.attstate = False
                 enemy2.state = True
                 miko.weap[i].yy = 1000
-                if second_collision >= 21:      #devil, remove of second collision
+                if second_collision >= 21:      #(devil), remove of second collision
                     #print(second_collision)
                     score_count += 20  # score+
                     second_collision = 0
                     enemies2.remove(enemy2)
                     miko.weap[i].yy = 1000
 
-    for i in range(20):
+    for i in range(20):                         #(miko.weap) >=900 collsion
         for collision_line in line:
             if collide2(miko, collision_line, i):
                 miko.attstate = False
                 miko.weap[i].yy =1000
+
+    for i in range(20):                         #(miko.weap) , (boss) collision
+        for boss in boss1:
+            if collide2(miko, boss, i):
+                second_collision += 20
+                miko.attstate = False
+                miko.weap[i].yy = 1000
+                if second_collision >= 200:
+                    score_count += 500
+                    second_collision = 0
+                    boss1.remove(boss)
+                    miko.weap[i].yy = 1000
 
 def draw(frame_time):
     hide_cursor()
@@ -406,8 +425,8 @@ def draw(frame_time):
     back1.draw()
     back2.draw()
     miko.draw()
-    boss.draw()
 
+    #boss.draw_bb()
     #for i in range(20):
     #    miko.draw_aa(i)
     #miko.draw_bb()
@@ -421,6 +440,8 @@ def draw(frame_time):
         enemy1.draw()
     for enemy2 in enemies2:
         enemy2.draw()
+    for boss in boss1:
+        boss.draw()
 
     score_font.draw(700,570,'score: '+str(score_count), (255,255,255))
 
@@ -442,5 +463,7 @@ def draw(frame_time):
             if (miko.diecount <= 0):
                 game_framework.change_state(game_over_state)
 
+
+
     update_canvas()
-    delay(0.002)
+    delay(0.001)
