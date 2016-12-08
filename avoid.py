@@ -451,7 +451,7 @@ def draw(frame_time):
             sleep(0.02)
             miko.diecount -= 1          #miko hp
             #print(miko.diecount)
-            if (miko.diecount <= 0):
+            if miko.diecount <= 0:
                 game_framework.change_state(game_over_state)
 
     for enemy2 in enemies2:            #miko, devil collision, game over
@@ -460,10 +460,14 @@ def draw(frame_time):
             sleep(0.01)
             miko.diecount -= 2          #miko hp
             #print(miko.diecount)
-            if (miko.diecount <= 0):
+            if miko.diecount <= 0:
                 game_framework.change_state(game_over_state)
 
-
+    for boss in boss1:                  #miko, boss collision, game over
+        if collide1(miko, boss):
+            miko.diecount -= 100
+        if miko.diecount <= 0:
+            game_framework.change_state(game_over_state)
 
     update_canvas()
     delay(0.001)
