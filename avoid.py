@@ -327,7 +327,7 @@ def enter():
     enemy1 = Blue_monster()
     enemies1 = [Blue_monster() for i in range(15)]  # blue monster
     enemy2 = Devil()
-    enemies2 = [Devil() for i in range(12)]  # devil
+    enemies2 = [Devil() for i in range(14)]  # devil
     boss = Boss()
     boss1 = [Boss()for i in range(1)] # boss
     collision_line = Collision_line()
@@ -465,7 +465,7 @@ def draw(frame_time):
 
     for boss in boss1:                  #miko, boss collision, game over
         if collide1(miko, boss):
-            miko.diecount -= 100
+            miko.diecount -= 10
         if miko.diecount <= 0:
             game_framework.change_state(game_over_state)
 
