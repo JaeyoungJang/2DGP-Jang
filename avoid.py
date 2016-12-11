@@ -222,7 +222,7 @@ class Devil:
         self.frame = random.randint(0,10)
         self.life_time = 0.0
         self.total_frames = 0.0
-        self.dir = 1.15
+        self.dir = 1.25
         self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
         self.state = False
 
@@ -325,9 +325,9 @@ def enter():
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
-    enemies1 = [Blue_monster() for i in range(15)]  # blue monster
+    enemies1 = [Blue_monster() for i in range(17)]  # blue monster
     enemy2 = Devil()
-    enemies2 = [Devil() for i in range(14)]  # devil
+    enemies2 = [Devil() for i in range(15)]  # devil
     boss = Boss()
     boss1 = [Boss()for i in range(1)] # boss
     collision_line = Collision_line()
