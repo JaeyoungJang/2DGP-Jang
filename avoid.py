@@ -179,7 +179,7 @@ class Blue_monster:
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.0
-        self.x, self.y = random.randint(1100, 3000), random.randint(60, 570)
+        self.x, self.y = random.randint(1200, 3500), random.randint(60, 570)
 
     def update(self,frame_time):
         self.frame += int(self.total_frames) % 2
@@ -223,7 +223,7 @@ class Devil:
         self.life_time = 0.0
         self.total_frames = 0.0
         self.dir = 1.25
-        self.x, self.y = random.randint(1700, 2500), random.randint(60, 570)
+        self.x, self.y = random.randint(2000, 3500), random.randint(60, 570)
         self.state = False
 
     def update(self,frame_time):
@@ -325,9 +325,9 @@ def enter():
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
-    enemies1 = [Blue_monster() for i in range(17)]  # blue monster
+    enemies1 = [Blue_monster() for i in range(15)]  # blue monster
     enemy2 = Devil()
-    enemies2 = [Devil() for i in range(15)]  # devil
+    enemies2 = [Devil() for i in range(12)]  # devil
     boss = Boss()
     boss1 = [Boss()for i in range(1)] # boss
     collision_line = Collision_line()
