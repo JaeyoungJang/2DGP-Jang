@@ -325,9 +325,9 @@ def enter():
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
-    enemies1 = [Blue_monster() for i in range(15)]  # blue monster
+    enemies1 = [Blue_monster() for i in range(20)]  # blue monster
     enemy2 = Devil()
-    enemies2 = [Devil() for i in range(12)]  # devil
+    enemies2 = [Devil() for i in range(14)]  # devil
     boss = Boss()
     boss1 = [Boss()for i in range(1)] # boss
     collision_line = Collision_line()
