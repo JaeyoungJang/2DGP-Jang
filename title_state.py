@@ -8,8 +8,11 @@ name = "TitleState"
 image = None
 
 def enter():
-    global image
+    global image,bgm
     image = load_image('title.png')
+    bgm = load_music('title_bgm.mp3')
+    bgm.set_volume(64)
+    bgm.repeat_play()
 
 def exit():
     global image

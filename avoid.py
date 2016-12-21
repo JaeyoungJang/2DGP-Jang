@@ -1,10 +1,12 @@
 from pico2d import *
 from time import sleep
 
+import json
 import random
 import game_framework
 import title_state
 import game_over_state
+import clear_state
 
 name = "MainState"
 
@@ -13,6 +15,9 @@ class Back1:
     def __init__(self):
         if Back1.image == None:
             Back1.image = load_image('space_back1.png')
+        self.bgm = load_music('main_bgm.mp3')
+        self.bgm.set_volume(64)
+        self.bgm.repeat_play()
         self.back1_x = 450      #first background, 'x' location
 
     def update(self,frame_time):
@@ -277,7 +282,7 @@ class Boss:
         distance = miko.RUN_SPEED_PPS * frame_time
         self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
 
-        if score_count >=350:               #score over 350, boss appearance
+        if score_count >=400:               #score over, boss appearance
             self.x -= (self.dir * distance)
 
         if self.x <=700:
@@ -285,7 +290,7 @@ class Boss:
             self.y = 300
 
     def draw(self):
-        if(score_count >= 350):
+        if score_count >= 400:
             self.image.clip_draw((self.frame % 7) * 262, 0, 253, 550, self.x, self.y)
 
     def draw_bb(self):
@@ -293,6 +298,50 @@ class Boss:
 
     def get_bb(self):
         return self.x - 100, self.y - 160, self.x + 110, self.y + 210
+
+class Boss_monster:
+
+    PIXEL_PER_METER = (30.0 / 0.3)  # 10 pixel 30 cm
+    RUN_SPEED_KMPH = 20.0  # Km / Hour
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 4
+
+    image = None
+    def __init__(self):
+        if Boss_monster.image == None:
+            Boss_monster.image = load_image('bossweapone.png')
+        self.frame = random.randint(0,5)
+        self.life_time = 0.0
+        self.total_frames = 0.0
+        self.dir = 1.5
+        self.x, self.y = random.randint(1200,2000), random.randint(30, 590)
+
+    def update(self,frame_time):
+        self.frame += int(self.total_frames) % 2
+        self.life_time += frame_time
+        distance = miko.RUN_SPEED_PPS * frame_time
+        self.total_frames += miko.FRAMES_PER_ACTION * miko.ACTION_PER_TIME * frame_time
+
+        if score_count >=400:               #with boss appearance
+            self.x -= (self.dir * distance)
+
+        if self.x <= 0:
+            self.x = random.randint(900,1500)
+            self.y = random.randint(30,590)
+
+    def draw(self):
+        if score_count >= 400:
+            self.image.clip_draw((self.frame % 4) * 22, 0, 25, 30, self.x, self.y)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x - 10, self.y - 10, self.x + 7, self.y + 10
 
 class Collision_line:       # if miko.weap.x >= 900 , miko.attstate = False
     def __init__(self):
@@ -320,21 +369,24 @@ def handle_events(frame_time):
             miko.handle_event(event)
 
 def enter():
-    global back1, back2, miko, enemy1, enemy2, enemies1, enemies2, warning_font, score_font, score_count, second_collision, boss, boss1, collision_line, line
+    global back1, back2, miko,enemy1,enemy2,enemies1,enemies2,warning_font,score_font,score_count,second_collision,boss,boss1,collision_line,line,boss_monster,boss2,clear_count
     back1 = Back1()
     back2 = Back2()
     miko = Miko()
     enemy1 = Blue_monster()
-    enemies1 = [Blue_monster() for i in range(19)]  # blue monster
+    enemies1 = [Blue_monster() for i in range(25)]  # blue monster
     enemy2 = Devil()
-    enemies2 = [Devil() for i in range(14)]  # devil
+    enemies2 = [Devil() for i in range(15)]  # devil
     boss = Boss()
-    boss1 = [Boss()for i in range(1)] # boss
+    boss1 = [Boss() for i in range(1)] # boss
+    boss_monster = Boss_monster()
+    boss2 = [Boss_monster() for i in range(20) ]
     collision_line = Collision_line()
     line = [Collision_line() for i in range(1)]
     warning_font = load_font('ENCR10B.TTF', 115)        #warning view
     score_font = load_font('ENCR10B.TTF', 25)           #score view
     score_count = 0             #score
+    clear_count = 0
     second_collision = 0        #devil second collision, remove
 
 def exit():
@@ -368,7 +420,7 @@ def collide2(a, b, i):                          #miko weapone, enemy collision
     return True
 
 def update(frame_time):
-    global score_count,second_collision,die_delay
+    global score_count,second_collision,die_delay,clear_count
     back1.update(frame_time)
     back2.update(frame_time)
     miko.update(frame_time)
@@ -378,6 +430,8 @@ def update(frame_time):
         enemy2.update(frame_time)
     for boss in boss1:
         boss.update(frame_time)
+    for boss_monster in boss2:
+        boss_monster.update(frame_time)
 
     for i in range(20):
         for enemy1 in enemies1:
@@ -414,10 +468,16 @@ def update(frame_time):
                 miko.attstate = False
                 miko.weap[i].yy = 1000
                 if second_collision >= 200:
-                    score_count += 500
+                    score_count += 600
                     second_collision = 0
                     boss1.remove(boss)
                     miko.weap[i].yy = 1000
+
+    if score_count >= 1000:
+        clear_count += 1
+        miko.diecount = 100
+        if clear_count >=30:
+            game_framework.change_state(clear_state)
 
 def draw(frame_time):
     hide_cursor()
@@ -434,7 +494,10 @@ def draw(frame_time):
     #    enemy1.draw_bb()
     #for enemy2 in enemies2:
     #    enemy2.draw_bb()
+    #for boss_monster in boss2:
+    #    boss_monster.draw_bb()
     #collision_line.draw_bb()
+
 
     for enemy1 in enemies1:
         enemy1.draw()
@@ -442,6 +505,8 @@ def draw(frame_time):
         enemy2.draw()
     for boss in boss1:
         boss.draw()
+    for boss_monster in boss2:
+        boss_monster.draw()
 
     score_font.draw(700,570,'score: '+str(score_count), (255,255,255))
 
@@ -465,9 +530,18 @@ def draw(frame_time):
 
     for boss in boss1:                  #miko, boss collision, game over
         if collide1(miko, boss):
-            miko.diecount -= 10
+            miko.diecount -= 100
         if miko.diecount <= 0:
             game_framework.change_state(game_over_state)
+
+    for boss_monster in boss2:
+        if collide1(miko, boss_monster):
+            warning_font.draw(230, 300, 'WARNING!', (255, 0, 0))
+            sleep(0.02)
+            miko.diecount -= 1  # miko hp
+            # print(miko.diecount)
+            if miko.diecount <= 0:
+                game_framework.change_state(game_over_state)
 
     update_canvas()
     delay(0.001)
